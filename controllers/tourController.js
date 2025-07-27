@@ -1,6 +1,8 @@
 const fs = require('fs');
+const Tour = require('../models/tourModel');
+
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
 
 // PARAMS MIDDLEWARE: CHECK TOUR ID
@@ -47,21 +49,33 @@ exports.getAllTours = (req, res) => {
 // POST: CREATE TOUR
 exports.createTour = (req, res) => {
   const newId = tours.length + 1;
+  // eslint-disable-next-line prefer-object-spread
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
 
-  fs.writeFile(
-    `${__dirname}/../dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    }
-  );
+  const testTour = new Tour({
+    name: 'The testing tour',
+    rating: '4.9',
+    price: 497,
+  });
+
+  testTour
+    .save()
+    .then((doc) => console.log(doc))
+    .catch((err) => console.log(err));
+
+  // fs.writeFile(
+  //   `${__dirname}/../dev-data/data/tours-simple.json`,
+  //   JSON.stringify(tours),
+  //   () => {
+  //     res.status(201).json({
+  //       status: 'success',
+  //       data: {
+  //         tour: newTour,
+  //       },
+  //     });
+  //   },
+  // );
 };
 
 // GET: TOUR
@@ -80,11 +94,11 @@ exports.getTour = (req, res) => {
 // PATCH: UPDATE TOUR
 exports.updateTour = (req, res) => {
   console.log(req.params);
-  const { id } = req.params;
+  // const { id } = req.params;
 
-  const tour = tours.find((el) => el.id === Number(id));
+  // const tour = tours.find((el) => el.id === Number(id));
 
-  const updatedTour = { ...tour, ...req.body };
+  // const updatedTour = { ...tour, ...req.body };
 
   res.status(200).json({
     status: 'success',
@@ -95,11 +109,11 @@ exports.updateTour = (req, res) => {
 // DELETE: TOUR
 exports.deleteTour = (req, res) => {
   console.log(req.params);
-  const { id } = req.params;
+  // const { id } = req.params;
 
-  const tour = tours.find((el) => el.id === Number(id));
+  // const tour = tours.find((el) => el.id === Number(id));
 
-  const updatedTour = { ...tour, ...req.body };
+  // const updatedTour = { ...tour, ...req.body };
 
   res.status(204).json({
     status: 'success',
