@@ -32,10 +32,52 @@ const Tour = require('../models/tourModel');
 
 // GET: ALL TOURS
 exports.getAllTours = async (req, res) => {
-  console.log(req.requestedTime);
+  console.log(req.query);
 
   try {
-    const tours = await Tour.find();
+    //1A) Filtering
+    const queryObj = { ...req.query };
+    const excludedFields = ['limit', 'sort', 'page', 'fields']; // Exclude fields from query params
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    //1B) Advance Filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lt|lte)\b/g, (match) => `$${match}`);
+
+    let query = Tour.find(JSON.parse(queryStr));
+
+    //2) Sorting
+    if (req.query.sort) {
+      console.log(req.query, req.query.sort);
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt _id'); // Add _id as secondary sort for consistency
+    }
+
+    //3) Limiting fields: Reducing data sent to the client (Selecting specific fields is called PROJECTING)
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+      console.log(fields);
+    } else {
+      query = query.select('-__v');
+    }
+
+    //4) Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments(JSON.parse(queryStr));
+      if (skip >= numTours) throw new Error("This page doesn't exist");
+    }
+
+    query = query.skip(skip).limit(limit);
+
+    // Execute Query
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
@@ -45,7 +87,7 @@ exports.getAllTours = async (req, res) => {
   } catch (error) {
     res.status(404).json({
       status: 'failed',
-      message: error,
+      message: error.message || error,
     });
   }
 };
