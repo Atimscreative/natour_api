@@ -112,6 +112,8 @@ exports.createTour = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
+
     res.status(400).json({
       status: 'failed',
       message: error,
@@ -187,6 +189,7 @@ exports.aliasTopTours = async (req, res, next) => {
   next();
 };
 
+// TOUR STATISTICS -  AGGREGATION PIPELINE
 exports.getTourStats = async (req, res) => {
   try {
     const stat = await Tour.aggregate([
@@ -214,5 +217,39 @@ exports.getTourStats = async (req, res) => {
       status: 'failed',
       message: error,
     });
+  }
+};
+
+// TOUR MONTHLY PLAN
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    const plan = await Tour.aggregate([
+      { $unwind: '$startDates' },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTourStats: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+      { $addFields: { month: `$_id` } },
+      { $project: { _id: 0 } },
+    ]);
+
+    res
+      .status(200)
+      .json({ status: 'success', results: plan.length, data: { plan } });
+  } catch (error) {
+    res.status(404).json({ status: 'success', message: error });
   }
 };
