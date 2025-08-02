@@ -10,7 +10,8 @@
     "start": "nodemon server.js",
     "serve": "set NODE_ENV=production && nodemon server.js",
     "import-data": "node dev-data/data/import-dev-data.js --import",
-    "delete-data": "node dev-data/data/import-dev-data.js --delete"
+    "delete-data": "node dev-data/data/import-dev-data.js --delete",
+    "debug": "ndb server.js"
   },
   "dependencies": {
     "dotenv": "^17.2.1",
