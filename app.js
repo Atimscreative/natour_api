@@ -12,21 +12,17 @@ const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
+// console.log(process.env);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// GLOBAL MIDDLEWARE: APPLY TO ALL ROUTES THAT COMES AFTER THIS
-app.use((req, res, next) => {
-  console.log('Hello');
-  next();
-});
-
-app.use((req, res, next) => {
-  req.requestedTime = new Date().toISOString();
-  next();
-});
+// // GLOBAL MIDDLEWARE: APPLY TO ALL ROUTES THAT COMES AFTER THIS
+// app.use((req, res, next) => {
+//   console.log('Hello');
+//   next();
+// });
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

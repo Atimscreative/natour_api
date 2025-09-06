@@ -2,6 +2,14 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 
+// ALIAS: TOP 5 TOURS - MIDDLEWARE HANDLER
+exports.aliasTopTours = async (req, res, next) => {
+  req.query.limit = 5;
+  req.query.sort = '-ratingAverage,price';
+  req.query.fields = 'name,price,ratingAverage,summary,difficulty';
+  next();
+};
+
 // PARAMS MIDDLEWARE: CHECK TOUR ID
 // exports.checkID = (req, res, next, val) => {
 //   console.log(req.params);
@@ -144,14 +152,6 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
     message: 'Tour deleted successfully!',
     data: null,
   });
-});
-
-// ALIAS: TOP 5 TOURS - MIDDLEWARE HANDLER
-exports.aliasTopTours = catchAsync(async (req, res, next) => {
-  req.query.limit = 5;
-  req.query.sort = '-ratingAverage,price';
-  req.query.fields = 'name,price,ratingAverage,summary,difficulty';
-  next();
 });
 
 // TOUR STATISTICS -  AGGREGATION PIPELINE
