@@ -1,23 +1,22 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 
+const signToken = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
 exports.signup = catchAsync(async (req, res, next) => {
-  // const { email } = req.body;
+  const { email, password, passwordConfirm, name } = req.body;
 
-  // const user = await User.findOne({ email });
+  const newUser = await User.create({ email, name, password, passwordConfirm });
 
-  // console.log(user);
-
-  // if (user)
-  //   res.status(400).json({
-  //     status: 'failed',
-  //     message: 'User already exist',
-  //   });
-
-  const newUser = await User.create(req.body);
+  const token = signToken(newUser._id);
 
   res.status(201).json({
     status: 'success',
+    token,
     data: {
       user: newUser,
     },

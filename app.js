@@ -1,6 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+// const crypto = require('crypto');
+// const secret = crypto.randomBytes(64).toString('hex');
+// console.log(secret);
 
 dotenv.config({ path: './config.env' });
 
